@@ -46,6 +46,8 @@ function initializeDatabase() {
     CREATE TABLE IF NOT EXISTS orders (
       id TEXT PRIMARY KEY,
       order_no TEXT UNIQUE NOT NULL,
+      merchant_trade_no TEXT,
+      ecpay_trade_no TEXT,
       user_id TEXT NOT NULL,
       recipient_name TEXT NOT NULL,
       recipient_email TEXT NOT NULL,
