@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:server)",
+      "Bash(npm test)",
+      "Bash(npm run css:build)",
+      "Bash(node *)",
+      "Bash(git *)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(curl * | bash)",
+      "Bash(wget * -O- | sh)"
+    ]
+  },
+  "model": "claude-sonnet-4-5",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
