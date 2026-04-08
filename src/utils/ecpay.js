@@ -136,10 +136,9 @@ function buildPaymentForm(order, merchantTradeNo) {
     ReturnURL: `${serverBaseUrl}/api/ecpay/notify`,
     OrderResultURL: `${serverBaseUrl}/api/ecpay/result`,
     ClientBackURL: `${serverBaseUrl}/api/ecpay/result`,
-    ChoosePayment: 'Credit',               // 信用卡（或 ALL 開放全付款方式）
-    EncryptType: '1',                      // SHA256
-    // 測試環境模擬付款（正式環境移除此行）
-    ...(isStaging ? { SimulatePaid: '1' } : {})
+    ChoosePayment: 'ALL',                  // 開放全部付款方式
+    EncryptType: '1'                       // SHA256
+    // 注意：公開測試帳號(3002607)不支援 SimulatePaid，請使用測試信用卡 4311-9522-2222-2222
   };
 
   // 計算 CheckMacValue
