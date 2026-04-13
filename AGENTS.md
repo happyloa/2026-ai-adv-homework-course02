@@ -1,60 +1,15 @@
-# AGENTS.md — 花店電商後端 (Codex CLI 主記憶入口)
+# AI Agents 協作指南 (AGENTS.md)
 
-## 專案簡介
+本文件旨在釐清本專案中 AI 開發助手 (Agents) 的作用範圍與參考依據，避免與其他文件重複。
 
-花店電商後端，提供商品瀏覽、購物車、訂單管理與 ECPay 綠界金流功能。
+## 核心配置與知識入口
+- **全域開發指引**：請所有 Agent (包含 Cursor, Claude Desktop, Roo Code 等) 統一以 `CLAUDE.md` 作為**主記憶與專案入口**。專案結構、指令與環境變數等一律以 `CLAUDE.md` 為準，本文件不再重複定義。
+- **詳細規則約束**：專案開發的細節規範，請依照 `.claude/rules/` 目錄下的文件進行。
 
-- **語言**：Node.js (CommonJS)
-- **框架**：Express 4
-- **資料庫**：SQLite（better-sqlite3，同步 API）
-- **模板引擎**：EJS
-- **CSS**：Tailwind CSS v4（透過 CLI build）
-- **測試**：Vitest + Supertest
+## Agent 協作工作流程
+1. **探索與理解階段**：每次啟動新任務或對話時，Agent 應優先讀取 `CLAUDE.md` 以及 `docs/FEATURES.md` 掌握專案全貌。
+2. **設計與開發階段**：在實際撰寫程式碼時，必須嚴格遵守 `docs/DEVELOPMENT.md` 中關於「資料庫操作 (better-sqlite3 同步寫法)」、「錯誤處理」與「API 回應格式」的約定。
+3. **驗證與測試階段**：功能開發或重構完成後，務必查閱 `docs/TESTING.md`，並主動執行 `npm test` 進行 Vitest + Supertest 的測試驗證。
 
-## 核心指令
-
-```bash
-npm run dev:server   # 啟動開發伺服器（port 3001）
-npm test             # 執行所有測試
-npm run css:build    # 建置 Tailwind CSS
-```
-
-## 目錄結構（速覽）
-
-```
-├── app.js              # Express app 設定
-├── server.js           # HTTP server 入口
-├── src/
-│   ├── database.js     # SQLite 初始化 & seed 資料
-│   ├── middleware/     # sessionMiddleware, errorHandler
-│   └── routes/         # 各 API 路由
-├── views/              # EJS 模板
-├── public/             # 靜態資源
-└── tests/              # Vitest 測試
-```
-
-## 延伸文件（docs/）
-
-| 文件 | 說明 |
-|------|------|
-| [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 完整目錄結構、資料流、DB Schema |
-| [DEVELOPMENT.md](./docs/DEVELOPMENT.md) | 命名規則、錯誤格式、開發規範 |
-| [FEATURES.md](./docs/FEATURES.md) | 功能清單與現況 |
-| [TESTING.md](./docs/TESTING.md) | 測試規範與範例 |
-| [plans/](./docs/plans/) | 開發計畫（進行中）|
-| [plans/archive/](./docs/plans/archive/) | 已完成計畫歸檔 |
-
-## 環境變數（必填）
-
-見 `.env.example`，關鍵變數：
-- `JWT_SECRET` — JWT 簽章密鑰
-- `BASE_URL` — 伺服器公開 URL（影響 ECPay ReturnURL）
-- `ECPAY_MERCHANT_ID` / `ECPAY_HASH_KEY` / `ECPAY_HASH_IV` — 綠界金流憑證
-
-## 重要規範
-
-- **資料庫操作**：直接使用 `db.prepare(...).run()` / `.get()` / `.all()`，不使用 ORM
-- **錯誤回應格式**：`{ data: null, error: 'ERROR_CODE', message: '說明' }`
-- **成功回應格式**：`{ data: {...}, error: null, message: '說明' }`
-- **中文**：回應 message 使用繁體中文，程式碼變數使用英文
-- 詳細規範見 [DEVELOPMENT.md](./docs/DEVELOPMENT.md)
+## 為什麼需要這份文件？
+過去 `AGENTS.md` 與 `CLAUDE.md` 內容高度重疊。為了維持「單一真實來源 (Single Source of Truth)」，現已將專案設定的細節統一收攏至 `CLAUDE.md` 與 `.claude/rules/`，而 `AGENTS.md` 則純粹做為不同 AI 助手在操作本專案時的「行為與流程導航」。
