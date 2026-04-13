@@ -11,7 +11,10 @@
       "Edit(*)"
     ],
     "deny": [
+      "Bash(Remove-Item -Recurse -Force *)",
       "Bash(rm -rf *)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
       "Bash(curl * | bash)",
       "Bash(wget * -O- | sh)"
     ]
