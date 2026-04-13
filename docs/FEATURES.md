@@ -105,9 +105,10 @@
 - 更新訂單狀態為 `paid` 或 `failed`
 - 必須回傳純文字 `1|OK`，HTTP 200
 
-**GET /api/ecpay/result**（ECPay OrderResultURL）
-- 消費者付款後的前端跳轉頁
-- 顯示交易結果
+**ALL /api/ecpay/result**（ECPay OrderResultURL / ClientBackURL）
+- 消費者付款後的前端跳轉頁（接收 GET 與 POST）
+- 針對未對外開放公網連線的本地開發環境提供 Fallback，直接由 POST 表單驗證 `CheckMacValue` 後更新訂單狀態為 `paid` / `failed`
+- 驗證成功或查詢更新後跳轉回訂單詳情頁面，帶入 `?payment=success` 或 `?payment=failed`
 
 ### 後台模組 (`/api/admin`)
 

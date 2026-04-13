@@ -179,7 +179,7 @@
 | POST | / | 建立訂單 |
 | POST | /:id/pay | 取得 ECPay 付款表單 |
 | POST | /ecpay/notify | ECPay ReturnURL（付款結果通知） |
-| GET | /ecpay/result | ECPay 付款結果頁（前端跳轉） |
+| ALL | /ecpay/result | ECPay 付款結果頁（前端跳轉，接收本地回傳 Fallback） |
 
 ### 後台 `/api/admin`
 
