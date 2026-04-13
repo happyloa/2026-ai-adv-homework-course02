@@ -136,6 +136,29 @@ router.get('/:id', (req, res, next) => {
 - **不可**將真實憑證（JWT_SECRET、ECPAY_HASH_KEY 等）寫入版本控制
 - `process.env.NODE_ENV` 用於區分測試／開發／正式環境
 
+### 環境變數清單
+
+| 變數名稱 | 說明 | 範例 / 預設值 |
+|----------|------|---------------|
+| `JWT_SECRET` | JWT 簽章密鑰，用於驗證 Token 來源 | `your_jwt_secret_key` |
+| `BASE_URL` | 伺服器公開 URL，影響綠界 ReturnURL 等回呼位址 | `http://localhost:3001` |
+| `ECPAY_MERCHANT_ID` | 綠界金流特店編號（測試環境需使用官方測試用參數） | `3002607` |
+| `ECPAY_HASH_KEY` | 綠界金流 HashKey（測試環境需使用官方測試用參數） | `pwFHCqoQZGmho4w6` |
+| `ECPAY_HASH_IV` | 綠界金流 HashIV（測試環境需使用官方測試用參數） | `EkRm7iFT261dpevs` |
+| `NODE_ENV` | 決定程式運行的模式（如開關測試用 log 或是判斷環境） | `development` / `production` / `test` |
+
+## 開發工作流程
+
+以下是新增或修改路由的完整步驟：
+
+1. **定義路由檔與結構**：在 `src/routes/` 目錄建立或修改對應的路由檔（如 `[entity]Routes.js`），並掛載至 `app.js`。
+2. **權限中介層**：如果需要登入或特定身份，在此路由套用 `authMiddleware` 等檢查機制。
+3. **實作邏輯與資料庫操作**：使用 `db.prepare()` 進行資料操作，確保輸入驗證，並以規定之格式回傳 `{ data, error, message }`。
+4. **錯誤處理**：在路由函式內加上 `try/catch`，若有非預期的例外透過 `next(err)` 讓全域錯誤處理器接手；預期內的錯誤則直接以特定 status code 回傳 JSON。
+5. **更新相關文件**：若為對外 API，可利用 Swagger JSDoc 在路由上方加入或更新 `@openapi` 註解。
+6. **撰寫測試案例**：在 `tests/` 目錄下撰寫對應的 Supertest/Vitest 測試，涵蓋成功與不同錯誤情境。
+7. **確認順利執行**：本機跑 `npm test` 確認無回歸錯誤，再送出 Commit。
+
 ## ECPay 金流規範
 
 - **協議**：AIO 全方位金流（CMV-SHA256）
