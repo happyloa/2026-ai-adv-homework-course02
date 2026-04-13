@@ -28,7 +28,7 @@ createApp({
       if (!order.value || paying.value) return;
       paying.value = true;
       try {
-        const token = localStorage.getItem('token');
+        const token = Auth.getToken();
         const res = await fetch('/api/ecpay/pay/' + order.value.id, {
           method: 'POST',
           headers: {
