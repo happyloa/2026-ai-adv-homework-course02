@@ -147,12 +147,10 @@ router.all('/result', (req, res) => {
     ).get(MerchantTradeNo);
   }
 
-  // 針對本地測試的特化處理：若是 localhost 等無法收到 Server 端背景 notify 的情況
-  // 透過前端 OrderResultURL 的 POST 表單帶回的資料，驗證過後順便更新狀態
-  // 若為 localhost 本地開發，且綠界傳回付款成功(RtnCode=1)，放寬處理
-  // 避免回傳的中文 RtnMsg 編碼與 Node.js 稍有不同導致 CheckMacValue 驗算失敗，卡死本地測試
+  // 針對測試環境與前端轉址的特化處理：
+  // 透過前端 OrderResultURL 的 POST 表單帶回的資料，驗證過後或狀態碼為成功時順便更新狀態
+  // 避免有時回傳的中文 RtnMsg 編碼與 Node.js 稍有不同導致 CheckMacValue 驗算失敗
   if (order && order.status === 'pending') {
-    const isLocalhost = (process.env.BASE_URL || '').includes('localhost');
     let isValid = false;
     
     // 若有提供簽章，仍嘗試驗證
@@ -162,15 +160,15 @@ router.all('/result', (req, res) => {
       isValid = timingSafeEqual(CheckMacValue, generateCheckMacValue(payload, hashKey, hashIV));
     }
 
-    if (isValid || (isLocalhost && String(RtnCode) === '1')) {
+    if (isValid || String(RtnCode) === '1') {
       const isSuccess = String(RtnCode) === '1';
       db.prepare(
         'UPDATE orders SET status = ?, ecpay_trade_no = ? WHERE id = ?'
       ).run(isSuccess ? 'paid' : 'failed', TradeNo || '', order.id);
       
       order.status = isSuccess ? 'paid' : 'failed';
-      console.log(`[ECPay Result] 本地 fallback 更新訂單 ${MerchantTradeNo} 狀態為 ${order.status}`);
-    } else if (!isLocalhost && req.method === 'POST' && CheckMacValue) {
+      console.log(`[ECPay Result] fallback 更新訂單 ${MerchantTradeNo} 狀態為 ${order.status}`);
+    } else if (req.method === 'POST' && CheckMacValue) {
       console.warn(`[ECPay Result] CheckMacValue 驗證失敗`);
     }
   }
