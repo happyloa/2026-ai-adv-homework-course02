@@ -131,12 +131,13 @@ router.post('/notify', (req, res) => {
 });
 
 /**
- * GET /api/ecpay/result
- * ECPay OrderResultURL / ClientBackURL — 消費者付款後前端跳轉頁
- * 接收 ECPay 以 GET query string 帶回的付款結果
+ * ALL /api/ecpay/result
+ * ECPay OrderResultURL (POST) / ClientBackURL (GET) — 消費者付款後前端跳轉頁
+ * 接收 ECPay 帶回的付款結果
  */
-router.get('/result', (req, res) => {
-  const { MerchantTradeNo, RtnCode, RtnMsg } = req.query;
+router.all('/result', (req, res) => {
+  const { MerchantTradeNo, RtnCode, RtnMsg } = { ...req.query, ...req.body };
+
 
   // 查詢訂單取得最新狀態
   let order = null;
@@ -148,18 +149,14 @@ router.get('/result', (req, res) => {
 
   const isSuccess = String(RtnCode) === '1' || (order && order.status === 'paid');
 
-  // 以 JSON 回傳結果（前端整合時可改為渲染 EJS 頁面）
-  res.json({
-    data: {
-      success: isSuccess,
-      merchantTradeNo: MerchantTradeNo || null,
-      rtnCode: RtnCode || null,
-      rtnMsg: RtnMsg || null,
-      order: order || null
-    },
-    error: null,
-    message: isSuccess ? '付款成功' : '付款失敗或尚未付款'
-  });
+  // 依據是否有訂單編號導向對應頁面
+  if (order && order.id) {
+    const paymentStatus = isSuccess ? 'success' : 'failed';
+    return res.redirect(`/orders/${order.id}?payment=${paymentStatus}`);
+  }
+
+  // 若找不到訂單 id，退回訂單列表頁
+  return res.redirect('/orders');
 });
 
 module.exports = router;
