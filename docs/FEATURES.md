@@ -107,7 +107,7 @@
 
 **ALL /api/ecpay/result**（ECPay OrderResultURL / ClientBackURL）
 - 消費者付款後的前端跳轉頁（接收 GET 與 POST）
-- 針對未對外開放公網的本地開發環境提供 Fallback：若偵測為 localhost，會在跳轉時放寬 `CheckMacValue` 的簽章校驗（避免中文編碼差異問題），直接依據 `RtnCode` 更新訂單狀態
+- 針對無法開放公網接收 Server 端背景 notify 的測試環境提供 Fallback：會在前端跳轉時放寬 `CheckMacValue` 的簽章校驗（避免有時中文編碼差異問題導致驗算失敗），直接依據狀態碼 (`RtnCode === '1'`) 更新訂單狀態。
 - 驗證成功或查詢後跳轉回訂單詳情頁面，帶入 `?payment=success` 或 `?payment=failed`
 
 ### 後台模組 (`/api/admin`)

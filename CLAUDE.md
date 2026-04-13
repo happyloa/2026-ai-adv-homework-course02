@@ -22,6 +22,8 @@ npm run css:build    # 建置 Tailwind CSS
 ## 目錄結構（速覽）
 
 ```
+├── .claude/            # AI 助手相關設定
+│   └── rules/          # AI 開發規則與規範 (例如 main.md)
 ├── app.js              # Express app 設定
 ├── server.js           # HTTP server 入口
 ├── src/
@@ -30,7 +32,8 @@ npm run css:build    # 建置 Tailwind CSS
 │   └── routes/         # 各 API 路由
 ├── views/              # EJS 模板
 ├── public/             # 靜態資源
-└── tests/              # Vitest 測試
+├── tests/              # Vitest 測試
+└── CLAUDE.md           # AI 主記憶與專案入口 (本文件)
 ```
 
 ## 延伸文件（docs/）

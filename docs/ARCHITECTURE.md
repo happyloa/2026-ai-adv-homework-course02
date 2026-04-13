@@ -40,13 +40,16 @@
 │   ├── orders.test.js
 │   ├── adminProducts.test.js
 │   └── adminOrders.test.js
-└── docs/
-    ├── ARCHITECTURE.md          # 此文件
-    ├── DEVELOPMENT.md
-    ├── FEATURES.md
-    ├── TESTING.md
-    └── plans/
-        └── archive/
+├── .claude/
+│   └── rules/                   # AI 開發規則與規範
+├── docs/
+│   ├── ARCHITECTURE.md          # 此文件
+│   ├── DEVELOPMENT.md
+│   ├── FEATURES.md
+│   ├── TESTING.md
+│   └── plans/
+│       └── archive/
+└── CLAUDE.md                    # AI 主記憶入口
 ```
 
 ## 資料流
