@@ -1,43 +1,7 @@
-# Codex CLI 設定
+model = "o4-mini"
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
 
-[model]
-default = "o4-mini"
-
-[permissions]
-# 允許的操作
-allow = [
-  "shell:npm run dev:server",
-  "shell:npm test",
-  "shell:npm run css:build",
-  "shell:node *",
-  "shell:git *",
-  "fs:read:*",
-  "fs:write:*"
-]
-
-# 禁止的操作
-deny = [
-  "shell:rm -rf *",
-  "shell:curl * | bash",
-  "shell:wget * -O- | sh"
-]
-
-[context]
-# 主要記憶入口
-memory_file = "AGENTS.md"
-
-# 延伸文件
-docs = [
-  "docs/ARCHITECTURE.md",
-  "docs/DEVELOPMENT.md",
-  "docs/FEATURES.md",
-  "docs/TESTING.md"
-]
-
-[rules]
-# 語言規則
-language = "zh-TW"
-commit_language = "zh-TW"
-
-# 回應 message 使用繁體中文
-response_language = "zh-TW"
+[sandbox_workspace_write]
+network_access = true
+writable_roots = ["~/.npm"]
