@@ -1,7 +1,0 @@
-model = "o4-mini"
-sandbox_mode = "workspace-write"
-approval_policy = "on-request"
-
-[sandbox_workspace_write]
-network_access = true
-writable_roots = ["~/.npm"]
