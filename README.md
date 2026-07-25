@@ -1,0 +1,25 @@
+# 花漾生活｜AI 開發進化營第二場作業
+
+本專案以第一場作業的綠界金流電商專案為起點，完成第二場作業所需的：
+
+- Design Skill 與設計稿導向的響應式切版
+- E2E Payment Test Skill 與可重現的瀏覽器自動化測試流程
+- 綠界測試環境付款流程、訂單結果與後台驗證指引
+
+## 第一場作業基底
+
+- 起始儲存庫：[happyloa/2026-ai-adv-homework-course01](https://github.com/happyloa/2026-ai-adv-homework-course01)
+- 本次作業儲存庫：[happyloa/2026-ai-adv-homework-course02](https://github.com/happyloa/2026-ai-adv-homework-course02)
+
+## 交付物導覽
+
+| 項目 | 位置 |
+| --- | --- |
+| Design Skill | `.agents/skills/flower-commerce-design/SKILL.md` |
+| E2E Payment Test Skill | `.agents/skills/e2e-payment-test/SKILL.md` |
+| 設計稿與設計規格 | `docs/design/` |
+| E2E 測試與錄影說明 | `docs/e2e/` |
+| 執行與繳交資訊 | `docs/SUBMISSION.md` |
+
+> 尚未完成的外部提交項目（回饋表單截圖、公開錄影網址）會在交付文件中以明確欄位保留，避免誤將示範內容當作真實提交。
+
