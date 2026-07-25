@@ -30,8 +30,9 @@ tests/
 測試時使用獨立記憶體資料庫，避免影響開發資料：
 
 ```js
-// tests/setup.js
+// tests/test-env.js
 process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = 'test-jwt-secret-for-vitest-only';
 // 使用 :memory: SQLite，每次測試完全隔離
 ```
 

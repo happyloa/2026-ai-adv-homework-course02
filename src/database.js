@@ -1,10 +1,49 @@
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
-const dbPath = path.join(__dirname, '..', 'database.sqlite');
-const db = new Database(dbPath);
+const dbPath = process.env.NODE_ENV === 'test'
+  ? ':memory:'
+  : path.join(__dirname, '..', 'database.sqlite');
+
+/**
+ * 將 Node 24 內建的同步 SQLite API 對齊專案既有的資料庫介面。
+ * 這樣可避免 Windows 在安裝 native addon 時需要 Python/C++ Build Tools。
+ */
+class SqliteDatabase {
+  constructor(filename) {
+    this.database = new DatabaseSync(filename);
+  }
+
+  exec(sql) {
+    return this.database.exec(sql);
+  }
+
+  prepare(sql) {
+    return this.database.prepare(sql);
+  }
+
+  pragma(statement) {
+    return this.database.exec(`PRAGMA ${statement}`);
+  }
+
+  transaction(callback) {
+    return (...args) => {
+      this.database.exec('BEGIN TRANSACTION');
+      try {
+        const result = callback(...args);
+        this.database.exec('COMMIT');
+        return result;
+      } catch (error) {
+        this.database.exec('ROLLBACK');
+        throw error;
+      }
+    };
+  }
+}
+
+const db = new SqliteDatabase(dbPath);
 
 // Enable WAL mode for better performance
 db.pragma('journal_mode = WAL');

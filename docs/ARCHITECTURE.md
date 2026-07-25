@@ -82,7 +82,7 @@
 
 ## 資料庫 Schema
 
-使用 SQLite，透過 better-sqlite3 同步 API 操作。
+使用 SQLite，透過 Node.js 內建 `node:sqlite` 同步 API 操作。
 
 ### users 資料表
 

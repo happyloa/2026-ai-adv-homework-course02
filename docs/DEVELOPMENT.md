@@ -4,9 +4,9 @@
 
 ## 技術棧規格
 
-- **執行環境**：Node.js 18+（CommonJS，不使用 ES Module）
+- **執行環境**：Node.js 24+（CommonJS，不使用 ES Module）
 - **框架**：Express 4
-- **資料庫**：better-sqlite3（同步 API，不使用 async/await）
+- **資料庫**：Node.js 內建 `node:sqlite`（同步 API，不使用 async/await）
 - **認證**：JSON Web Token (jsonwebtoken)
 - **密碼**：bcrypt
 - **ID 產生**：uuid v4
@@ -71,7 +71,7 @@ res.status(400).json({
 ## 資料庫操作規範
 
 - **不使用 ORM**，直接操作 `db.prepare().run()/.get()/.all()`
-- **同步 API**：better-sqlite3 全部為同步，不需要 `async/await`
+- **同步 API**：`node:sqlite` 全部為同步，不需要 `async/await`
 - **批次操作**：使用 `db.transaction(() => {...})` 包裝多筆寫入
 - **ID**：主鍵一律使用 `uuidv4()` 產生
 

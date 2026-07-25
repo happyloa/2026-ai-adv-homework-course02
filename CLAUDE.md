@@ -6,7 +6,7 @@
 
 - **語言**：Node.js (CommonJS)
 - **框架**：Express 4
-- **資料庫**：SQLite（better-sqlite3，同步 API）
+- **資料庫**：Node.js 內建 SQLite（`node:sqlite` 同步 API）
 - **模板引擎**：EJS
 - **CSS**：Tailwind CSS v4（透過 CLI build）
 - **測試**：Vitest + Supertest
