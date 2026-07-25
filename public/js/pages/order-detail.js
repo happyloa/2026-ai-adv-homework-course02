@@ -1,4 +1,4 @@
-const { createApp, ref, onMounted } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
 createApp({
   setup() {
@@ -11,6 +11,10 @@ createApp({
     const order = ref(null);
     const loading = ref(true);
     const paying = ref(false);
+
+    const isPaymentComplete = computed(function () {
+      return order.value?.status === 'paid' || paymentResult.value === 'success';
+    });
 
     const statusMap = {
       pending: { label: '待付款', cls: 'bg-apricot/20 text-apricot' },
@@ -57,6 +61,6 @@ createApp({
       }
     });
 
-    return { order, loading, paying, paymentResult, statusMap, paymentMessages, handleEcpay };
+    return { order, loading, paying, paymentResult, isPaymentComplete, statusMap, paymentMessages, handleEcpay };
   }
 }).mount('#app');

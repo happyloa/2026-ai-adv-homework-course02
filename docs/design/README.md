@@ -1,11 +1,12 @@
-# 花漾生活設計稿
+# 花漾生活設計稿與切版佐證
 
 ## 設計工具與產出方式
 
-- 工具：OpenAI Image Generation MCP
+- 設計工具：OpenAI Image Generation（由 Codex 的 imagegen 工具呼叫）
 - 設計產出：`flower-life-design-concept.png`
+- 商品視覺素材：`public/images/flower-life-bouquet.png`
 - 產出時間：2026-07-26
-- 設計用途：作為商品頁、結帳頁、訂單確認與付款完成頁的視覺基底。
+- 設計用途：作為商品頁、購物袋、結帳、訂單確認與付款完成頁的視覺基底。
 
 ## 視覺方向
 
@@ -13,7 +14,7 @@
 
 ![花漾生活桌面版設計概念](./flower-life-design-concept.png)
 
-## 實作對照
+## 設計稿到實作對照
 
 | 設計元素 | 前端實作 |
 | --- | --- |
@@ -22,4 +23,13 @@
 | 橄欖綠安全付款識別 | 綠界付款 CTA 與成功狀態 |
 | 分段訂單摘要 | 結帳、訂單確認、付款完成頁 |
 
-後續會將實作完成後的桌面與手機截圖也保存在此資料夾，作為「設計稿 → 切版」的可查驗紀錄。
+## 已完成的切版截圖
+
+| 畫面 | 螢幕尺寸 | 截圖 |
+| --- | --- | --- |
+| 商品詳情 | 桌面 | [implementation-product-desktop.jpg](./implementation-product-desktop.jpg) |
+| 結帳填寫 | 桌面 | [implementation-checkout-desktop.jpg](./implementation-checkout-desktop.jpg) |
+| 付款完成 | 桌面 | [implementation-payment-success-desktop.jpg](./implementation-payment-success-desktop.jpg) |
+| 商品詳情 | 手機 | [implementation-product-mobile.jpg](./implementation-product-mobile.jpg) |
+
+這四張截圖由 `npm run design:capture` 以本機 Chrome 重新產生，作為「設計稿 → 響應式切版」的可查驗紀錄。

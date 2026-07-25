@@ -21,5 +21,18 @@
 | E2E 測試與錄影說明 | `docs/e2e/` |
 | 執行與繳交資訊 | `docs/SUBMISSION.md` |
 
-> 尚未完成的外部提交項目（回饋表單截圖、公開錄影網址）會在交付文件中以明確欄位保留，避免誤將示範內容當作真實提交。
+## 本機驗證
 
+請使用 Node.js 24 以上版本，依 `.env.example` 建立本機 `.env` 後執行：
+
+```powershell
+npm install
+npm run css:build
+npm test
+npm run test:e2e
+npm run design:capture
+```
+
+`npm run test:e2e` 會以隔離的測試資料庫啟動本機伺服器，並以 Chrome 驗證商品加入購物袋、註冊後購物袋合併、欄位驗證、建立訂單、綠界簽章回呼與付款完成頁。
+
+> 尚未完成的外部提交項目（回饋表單截圖、公開錄影網址）會在交付文件中以明確欄位保留，避免誤將示範內容當作真實提交。
