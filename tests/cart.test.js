@@ -85,6 +85,33 @@ describe('Cart API', () => {
     expect(res.body.data).toHaveProperty('product_id', productId);
   });
 
+  it('should merge a guest cart when the guest registers', async () => {
+    const mergeSessionId = 'merge-session-' + Date.now();
+    await request(app)
+      .post('/api/cart')
+      .set('X-Session-Id', mergeSessionId)
+      .send({ productId, quantity: 1 });
+
+    const registerRes = await request(app)
+      .post('/api/auth/register')
+      .set('X-Session-Id', mergeSessionId)
+      .send({
+        email: `merged-cart-${Date.now()}@example.com`,
+        password: 'password123',
+        name: '購物車測試用戶'
+      });
+
+    expect(registerRes.status).toBe(201);
+
+    const cartRes = await request(app)
+      .get('/api/cart')
+      .set('Authorization', `Bearer ${registerRes.body.data.token}`);
+
+    expect(cartRes.status).toBe(200);
+    expect(cartRes.body.data.items).toHaveLength(1);
+    expect(cartRes.body.data.items[0].product_id).toBe(productId);
+  });
+
   it('should fail to add non-existent product to cart', async () => {
     const res = await request(app)
       .post('/api/cart')

@@ -147,9 +147,8 @@ router.all('/result', (req, res) => {
     ).get(MerchantTradeNo);
   }
 
-  // 針對測試環境與前端轉址的特化處理：
-  // 透過前端 OrderResultURL 的 POST 表單帶回的資料，驗證過後或狀態碼為成功時順便更新狀態
-  // 避免有時回傳的中文 RtnMsg 編碼與 Node.js 稍有不同導致 CheckMacValue 驗算失敗
+  // 僅接受帶有有效 CheckMacValue 的 OrderResultURL POST 更新付款狀態。
+  // ClientBackURL 的 GET 可被任意人造訪，不能只憑 RtnCode 更新訂單。
   if (order && order.status === 'pending') {
     let isValid = false;
     
@@ -160,7 +159,7 @@ router.all('/result', (req, res) => {
       isValid = timingSafeEqual(CheckMacValue, generateCheckMacValue(payload, hashKey, hashIV));
     }
 
-    if (isValid || String(RtnCode) === '1') {
+    if (isValid) {
       const isSuccess = String(RtnCode) === '1';
       db.prepare(
         'UPDATE orders SET status = ?, ecpay_trade_no = ? WHERE id = ?'

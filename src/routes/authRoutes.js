@@ -5,6 +5,39 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../database');
 const authMiddleware = require('../middleware/authMiddleware');
 
+function mergeSessionCart(req, userId) {
+  if (!req.sessionId) return;
+
+  const sessionItems = db.prepare(
+    'SELECT id, product_id, quantity FROM cart_items WHERE session_id = ?'
+  ).all(req.sessionId);
+
+  if (sessionItems.length === 0) return;
+
+  const merge = db.transaction(() => {
+    const findUserItem = db.prepare(
+      'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ?'
+    );
+    const updateUserItem = db.prepare('UPDATE cart_items SET quantity = ? WHERE id = ?');
+    const moveSessionItem = db.prepare(
+      'UPDATE cart_items SET user_id = ?, session_id = NULL WHERE id = ?'
+    );
+    const removeSessionItem = db.prepare('DELETE FROM cart_items WHERE id = ?');
+
+    for (const item of sessionItems) {
+      const userItem = findUserItem.get(userId, item.product_id);
+      if (userItem) {
+        updateUserItem.run(userItem.quantity + item.quantity, userItem.id);
+        removeSessionItem.run(item.id);
+      } else {
+        moveSessionItem.run(userId, item.id);
+      }
+    }
+  });
+
+  merge();
+}
+
 const router = express.Router();
 
 /**
@@ -109,6 +142,8 @@ router.post('/register', (req, res) => {
 
   const user = db.prepare('SELECT id, email, name, role, created_at FROM users WHERE id = ?').get(id);
 
+  mergeSessionCart(req, user.id);
+
   const token = jwt.sign(
     { userId: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
@@ -206,6 +241,8 @@ router.post('/login', (req, res) => {
       message: 'Email 或密碼錯誤'
     });
   }
+
+  mergeSessionCart(req, user.id);
 
   const token = jwt.sign(
     { userId: user.id, email: user.email, role: user.role },
