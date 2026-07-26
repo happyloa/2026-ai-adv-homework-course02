@@ -48,4 +48,6 @@ npm run recording:stop
 
 `recording:flow` 會自動操作前台、綠界官方測試卡與 3D OTP，最後預填綠界測試後台帳密；錄影者只需輸入 CAPTCHA，並查詢終端顯示的 `MerchantTradeNo`。完整步驟請見 [`docs/e2e/recording-checklist.md`](docs/e2e/recording-checklist.md)。
 
+執行 `recording:start` 後，請先等到終端顯示 `Recording environment is ready.` 再執行 `recording:check`；Cloudflare 暫時網址若沒有正確建立 DNS，啟動腳本會自動更換網址重試。
+
 > 尚未完成的外部提交項目（回饋表單截圖、公開錄影網址）會在交付文件中以明確欄位保留，避免誤將示範內容當作真實提交。

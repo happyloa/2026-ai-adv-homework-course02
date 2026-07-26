@@ -77,6 +77,8 @@ npm run recording:stop
 - `recording:flow`：以可見 Chrome 慢速重播相同流程，最後開啟綠界測試後台並預填官方公開測試帳密。
 - `recording:stop`：只停止前述腳本所追蹤的 Node 與 cloudflared 程序。
 
+執行 `recording:start` 後必須等到 `Recording environment is ready.` 才能執行下一個指令；腳本會自動淘汰沒有 DNS 記錄的 Quick Tunnel 網址。
+
 綠界後台 CAPTCHA 必須由錄影者親自輸入；登入後依序進入「一般訂單查詢 → 全方位金流訂單」，用終端顯示的 `MerchantTradeNo` 查詢。
 
 錄影必須依序呈現：

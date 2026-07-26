@@ -87,8 +87,13 @@ New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
 
 $serverPidFile = Join-Path $runtimeDir 'server.pid'
 $tunnelPidFile = Join-Path $runtimeDir 'cloudflared.pid'
+$publicUrlFile = Join-Path $runtimeDir 'public-url.txt'
+
+Write-Host ''
+Write-Host 'Preparing the recording environment...' -ForegroundColor Cyan
 Stop-TrackedProcess -PidFile $serverPidFile -ExpectedName 'node'
 Stop-TrackedProcess -PidFile $tunnelPidFile -ExpectedName 'cloudflared'
+Remove-Item -LiteralPath $publicUrlFile -Force -ErrorAction SilentlyContinue
 
 try {
   $existingResponse = Invoke-WebRequest -Uri $localUrl -UseBasicParsing -TimeoutSec 2
@@ -106,51 +111,66 @@ $tunnelErrLog = Join-Path $runtimeDir 'cloudflared.err.log'
 $serverOutLog = Join-Path $runtimeDir 'server.out.log'
 $serverErrLog = Join-Path $runtimeDir 'server.err.log'
 
-Remove-Item -LiteralPath $tunnelOutLog,$tunnelErrLog,$serverOutLog,$serverErrLog -Force -ErrorAction SilentlyContinue
-
-$tunnelProcess = Start-Process `
-  -FilePath $cloudflaredPath `
-  -ArgumentList @('tunnel', '--no-autoupdate', '--url', $localUrl) `
-  -WorkingDirectory $projectRoot `
-  -RedirectStandardOutput $tunnelOutLog `
-  -RedirectStandardError $tunnelErrLog `
-  -WindowStyle Hidden `
-  -PassThru
-
-$tunnelProcess.Id | Set-Content -LiteralPath $tunnelPidFile -Encoding ASCII
-
 $publicUrl = $null
-$tunnelDeadline = (Get-Date).AddSeconds(60)
-while ((Get-Date) -lt $tunnelDeadline -and -not $publicUrl) {
-  if ($tunnelProcess.HasExited) {
-    $details = Get-Content -Raw -LiteralPath $tunnelErrLog -ErrorAction SilentlyContinue
-    throw "cloudflared exited before creating a URL.`n$details"
+$maxTunnelAttempts = 3
+
+for ($attempt = 1; $attempt -le $maxTunnelAttempts; $attempt++) {
+  Remove-Item -LiteralPath $tunnelOutLog,$tunnelErrLog -Force -ErrorAction SilentlyContinue
+  Write-Host "Starting Cloudflare Quick Tunnel (attempt $attempt/$maxTunnelAttempts)..."
+
+  $tunnelProcess = Start-Process `
+    -FilePath $cloudflaredPath `
+    -ArgumentList @('tunnel', '--no-autoupdate', '--url', $localUrl) `
+    -WorkingDirectory $projectRoot `
+    -RedirectStandardOutput $tunnelOutLog `
+    -RedirectStandardError $tunnelErrLog `
+    -WindowStyle Hidden `
+    -PassThru
+
+  $tunnelProcess.Id | Set-Content -LiteralPath $tunnelPidFile -Encoding ASCII
+
+  $candidateUrl = $null
+  $tunnelDeadline = (Get-Date).AddSeconds(45)
+  while ((Get-Date) -lt $tunnelDeadline -and -not $candidateUrl) {
+    if ($tunnelProcess.HasExited) {
+      break
+    }
+
+    $combinedLog = @(
+      Get-Content -Raw -LiteralPath $tunnelOutLog -ErrorAction SilentlyContinue
+      Get-Content -Raw -LiteralPath $tunnelErrLog -ErrorAction SilentlyContinue
+    ) -join "`n"
+
+    $match = [regex]::Match($combinedLog, 'https://[-a-z0-9]+\.trycloudflare\.com')
+    if ($match.Success) {
+      $candidateUrl = $match.Value
+      break
+    }
+
+    Start-Sleep -Milliseconds 500
   }
 
-  $combinedLog = @(
-    Get-Content -Raw -LiteralPath $tunnelOutLog -ErrorAction SilentlyContinue
-    Get-Content -Raw -LiteralPath $tunnelErrLog -ErrorAction SilentlyContinue
-  ) -join "`n"
+  if (-not $candidateUrl) {
+    Write-Warning 'cloudflared did not create a URL; retrying with a new tunnel.'
+    Stop-TrackedProcess -PidFile $tunnelPidFile -ExpectedName 'cloudflared'
+    continue
+  }
 
-  $match = [regex]::Match($combinedLog, 'https://[-a-z0-9]+\.trycloudflare\.com')
-  if ($match.Success) {
-    $publicUrl = $match.Value
+  Write-Host "Candidate URL: $candidateUrl"
+  Write-Host 'Waiting for Cloudflare to publish its DNS record...'
+  try {
+    Wait-ForPublicDns -Url $candidateUrl -TimeoutSeconds 30
+    $publicUrl = $candidateUrl
     break
+  } catch {
+    Write-Warning 'Cloudflare returned a hostname without a DNS record; retrying with a new tunnel.'
+    Stop-TrackedProcess -PidFile $tunnelPidFile -ExpectedName 'cloudflared'
   }
-
-  Start-Sleep -Milliseconds 500
 }
 
 if (-not $publicUrl) {
   Stop-TrackedProcess -PidFile $tunnelPidFile -ExpectedName 'cloudflared'
-  throw 'Timed out waiting for a trycloudflare.com URL.'
-}
-
-try {
-  Wait-ForPublicDns -Url $publicUrl -TimeoutSeconds 60
-} catch {
-  Stop-TrackedProcess -PidFile $tunnelPidFile -ExpectedName 'cloudflared'
-  throw
+  throw 'Cloudflare could not create a usable Quick Tunnel after 3 attempts. Run recording:start again.'
 }
 
 $envContent = Get-Content -Raw -LiteralPath $envPath
@@ -162,7 +182,10 @@ if ($envContent -match '(?m)^BASE_URL=.*$') {
 
 $utf8WithoutBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($envPath, $envContent, $utf8WithoutBom)
-[System.IO.File]::WriteAllText((Join-Path $runtimeDir 'public-url.txt'), $publicUrl, $utf8WithoutBom)
+[System.IO.File]::WriteAllText($publicUrlFile, $publicUrl, $utf8WithoutBom)
+
+Remove-Item -LiteralPath $serverOutLog,$serverErrLog -Force -ErrorAction SilentlyContinue
+Write-Host 'Starting the local Node.js server...'
 
 $serverProcess = Start-Process `
   -FilePath $nodeCommand.Source `
@@ -184,23 +207,10 @@ try {
   throw "$($_.Exception.Message)`n$serverDetails"
 }
 
-$publicCheckPassed = $true
-try {
-  Wait-ForHttp -Url $publicUrl -TimeoutSeconds 60
-} catch {
-  $publicCheckPassed = $false
-  Write-Warning 'The tunnel is connected, but this computer could not verify the public URL yet. DNS propagation can take another minute.'
-}
-
 Write-Host ''
 Write-Host 'Recording environment is ready.' -ForegroundColor Green
 Write-Host "Public URL : $publicUrl" -ForegroundColor Cyan
 Write-Host "Local URL  : $localUrl"
 Write-Host 'BASE_URL was updated in the ignored .env file.'
-if ($publicCheckPassed) {
-  Write-Host 'Public HTTPS check passed.' -ForegroundColor Green
-} else {
-  Write-Host 'Before recording, open the Public URL in Chrome once to confirm it loads.' -ForegroundColor Yellow
-}
-Write-Host 'Keep this PowerShell session and network connection available during recording.'
+Write-Host 'Next step: npm run recording:check' -ForegroundColor Yellow
 Write-Host 'When finished, run: npm run recording:stop'

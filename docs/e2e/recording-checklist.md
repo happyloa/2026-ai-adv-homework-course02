@@ -17,6 +17,18 @@
 
 ```powershell
 npm run recording:start
+```
+
+第一個指令會顯示 tunnel 建立進度；若 Cloudflare 回傳沒有 DNS 的暫時網址，腳本會自動重試。請勿在中途按 `Ctrl+C`，務必等到出現：
+
+```text
+Recording environment is ready.
+Next step: npm run recording:check
+```
+
+再執行：
+
+```powershell
 npm run recording:check
 ```
 
@@ -26,7 +38,7 @@ npm run recording:check
 2. `ECPay staging payment completed`
 3. `Payment success page verified`
 
-`recording:check` 會建立一筆真實的綠界測試交易；這是預期行為，不會產生實際扣款。
+`recording:check` 等候公開網址時會每 10 秒顯示一次進度，最長約 120 秒。它會建立一筆真實的綠界測試交易；這是預期行為，不會產生實際扣款。
 
 ## 必錄畫面順序
 

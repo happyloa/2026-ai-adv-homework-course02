@@ -3,7 +3,8 @@ const path = require('node:path');
 const { chromium } = require('@playwright/test');
 
 const projectRoot = path.join(__dirname, '..');
-const publicUrlPath = path.join(projectRoot, '.recording-runtime', 'public-url.txt');
+const runtimeDir = path.join(projectRoot, '.recording-runtime');
+const publicUrlPath = path.join(runtimeDir, 'public-url.txt');
 
 function readPublicUrl() {
   if (process.env.RECORDING_BASE_URL) {
@@ -17,9 +18,24 @@ function readPublicUrl() {
   return fs.readFileSync(publicUrlPath, 'utf8').trim().replace(/\/$/, '');
 }
 
+function assertTrackedProcess(pidFileName, label) {
+  const pidPath = path.join(runtimeDir, pidFileName);
+  if (!fs.existsSync(pidPath)) {
+    throw new Error(`${label} was not started. Run npm run recording:start and wait for "Recording environment is ready."`);
+  }
+
+  const pid = Number.parseInt(fs.readFileSync(pidPath, 'utf8'), 10);
+  try {
+    process.kill(pid, 0);
+  } catch {
+    throw new Error(`${label} is no longer running. Run npm run recording:start again.`);
+  }
+}
+
 async function waitForPublicUrl(publicUrl, timeout = 120_000) {
   const deadline = Date.now() + timeout;
   let lastError = 'unknown error';
+  let nextProgressAt = Date.now() + 10_000;
 
   while (Date.now() < deadline) {
     try {
@@ -33,10 +49,19 @@ async function waitForPublicUrl(publicUrl, timeout = 120_000) {
       lastError = error.cause?.code || error.message;
     }
 
+    if (Date.now() >= nextProgressAt) {
+      const secondsLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      console.log(`Public URL is still propagating (${lastError}); ${secondsLeft}s remaining...`);
+      nextProgressAt = Date.now() + 10_000;
+    }
+
     await new Promise(resolve => setTimeout(resolve, 2_000));
   }
 
-  throw new Error(`Public URL was not ready after ${timeout / 1000}s (${lastError}).`);
+  throw new Error(
+    `Public URL was not ready after ${timeout / 1000}s (${lastError}). ` +
+    'Run npm run recording:stop, then npm run recording:start to request a new tunnel.'
+  );
 }
 
 async function waitForPageReady(page, expectedPage) {
@@ -95,7 +120,10 @@ async function completeEcpayMockPayment(paymentPopup) {
 }
 
 async function main() {
+  assertTrackedProcess('server.pid', 'Local Node.js server');
+  assertTrackedProcess('cloudflared.pid', 'Cloudflare tunnel');
   const publicUrl = readPublicUrl();
+  console.log(`Checking recording environment: ${publicUrl}`);
   await waitForPublicUrl(publicUrl);
   const email = `recording-${Date.now()}@example.com`;
   const browser = await chromium.launch({
