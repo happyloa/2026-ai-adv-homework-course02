@@ -112,6 +112,7 @@ function initializeDatabase() {
   // Seed data
   seedAdminUser();
   seedProducts();
+  migrateLegacyProductImages();
 }
 
 function seedAdminUser() {
@@ -203,6 +204,26 @@ function seedProducts() {
   });
 
   insertMany(seedProducts);
+}
+
+function migrateLegacyProductImages() {
+  const legacySeedImageUrls = [
+    'https://images.unsplash.com/photo-1565279445322-30ab5314ff94?w=400',
+    'https://images.unsplash.com/photo-1555596112-ca9a1e964e13?w=400',
+    'https://images.unsplash.com/photo-1543409777-30250849aa3e?w=400',
+    'https://images.unsplash.com/photo-1668170782281-330e987237ba?w=400',
+    'https://images.unsplash.com/photo-1610467618849-66d363f5aa16?w=400',
+    'https://images.unsplash.com/photo-1763609196518-46f0ee9d5cfd?w=400',
+    'https://images.unsplash.com/photo-1735598564837-dc45391d5ca1?w=400',
+    'https://images.unsplash.com/photo-1610190427750-03e9095f18e3?w=400'
+  ];
+  const placeholders = legacySeedImageUrls.map(() => '?').join(', ');
+
+  db.prepare(
+    `UPDATE products
+     SET image_url = ?, updated_at = datetime('now')
+     WHERE image_url IN (${placeholders})`
+  ).run('/images/flower-life-bouquet.png', ...legacySeedImageUrls);
 }
 
 initializeDatabase();

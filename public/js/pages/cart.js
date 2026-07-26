@@ -73,3 +73,5 @@ createApp({
     };
   }
 }).mount('#app');
+
+document.documentElement.dataset.pageReady = 'cart';

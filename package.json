@@ -14,7 +14,11 @@
     "test": "vitest run",
     "design:capture": "node scripts/capture-design.cjs",
     "test:e2e": "node scripts/run-e2e.cjs",
-    "test:e2e:headed": "node scripts/run-e2e.cjs --headed"
+    "test:e2e:headed": "node scripts/run-e2e.cjs --headed",
+    "recording:start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-recording-environment.ps1",
+    "recording:check": "node scripts/check-recording-readiness.cjs",
+    "recording:flow": "node scripts/record-payment-flow.cjs",
+    "recording:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop-recording-environment.ps1"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

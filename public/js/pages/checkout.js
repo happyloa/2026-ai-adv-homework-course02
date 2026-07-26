@@ -63,3 +63,5 @@ createApp({
     return { loading, submitting, cartItems, form, errors, cartTotal, submitOrder };
   }
 }).mount('#app');
+
+document.documentElement.dataset.pageReady = 'checkout';

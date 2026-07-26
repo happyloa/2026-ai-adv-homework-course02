@@ -53,3 +53,5 @@ createApp({
     return { product, loading, notFound, quantity, adding, decrease, increase, addToCart };
   }
 }).mount('#app');
+
+document.documentElement.dataset.pageReady = 'product-detail';

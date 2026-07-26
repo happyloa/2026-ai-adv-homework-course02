@@ -64,3 +64,5 @@ createApp({
     return { order, loading, paying, paymentResult, isPaymentComplete, statusMap, paymentMessages, handleEcpay };
   }
 }).mount('#app');
+
+document.documentElement.dataset.pageReady = 'order-detail';
