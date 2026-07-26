@@ -35,4 +35,17 @@ npm run design:capture
 
 `npm run test:e2e` 會以隔離的測試資料庫啟動本機伺服器，並以 Chrome 驗證商品加入購物袋、註冊後購物袋合併、欄位驗證、建立訂單、綠界簽章回呼與付款完成頁。
 
+## 真實綠界錄影
+
+本工作區已準備 Cloudflare Quick Tunnel 與被 Git 忽略的 `.env`。正式錄影依序執行：
+
+```powershell
+npm run recording:start
+npm run recording:check
+npm run recording:flow
+npm run recording:stop
+```
+
+`recording:flow` 會自動操作前台、綠界官方測試卡與 3D OTP，最後預填綠界測試後台帳密；錄影者只需輸入 CAPTCHA，並查詢終端顯示的 `MerchantTradeNo`。完整步驟請見 [`docs/e2e/recording-checklist.md`](docs/e2e/recording-checklist.md)。
+
 > 尚未完成的外部提交項目（回饋表單截圖、公開錄影網址）會在交付文件中以明確欄位保留，避免誤將示範內容當作真實提交。

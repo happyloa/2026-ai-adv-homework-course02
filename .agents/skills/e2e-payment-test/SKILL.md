@@ -63,11 +63,27 @@ npm run test:e2e:headed
 
 ## 錄製真正綠界測試流程
 
-完整影片步驟在 `docs/e2e/recording-checklist.md`。錄影必須依序呈現：
+完整影片步驟在 `docs/e2e/recording-checklist.md`。本專案已提供一鍵啟停與真實 staging 流程：
+
+```powershell
+npm run recording:start
+npm run recording:check
+npm run recording:flow
+npm run recording:stop
+```
+
+- `recording:start`：啟動本機伺服器與 Cloudflare Quick Tunnel，自動把隨機 HTTPS 網址寫入被 Git 忽略的 `.env`。
+- `recording:check`：以 headless Chrome 建立真實綠界 staging 訂單，完成官方測試卡、3D OTP、ReturnURL callback 與付款成功頁驗證。
+- `recording:flow`：以可見 Chrome 慢速重播相同流程，最後開啟綠界測試後台並預填官方公開測試帳密。
+- `recording:stop`：只停止前述腳本所追蹤的 Node 與 cloudflared 程序。
+
+綠界後台 CAPTCHA 必須由錄影者親自輸入；登入後依序進入「一般訂單查詢 → 全方位金流訂單」，用終端顯示的 `MerchantTradeNo` 查詢。
+
+錄影必須依序呈現：
 
 1. Agent 呼叫本 Skill。
 2. 瀏覽器自動操作商品、購物袋與結帳流程。
-3. 綠界測試付款頁與測試付款完成。
+3. 綠界測試付款頁、官方測試卡、3D OTP 與測試付款完成。
 4. 回到花漾生活付款完成頁。
 5. 綠界測試特店後台顯示新建立的訂單。
 
@@ -76,6 +92,6 @@ npm run test:e2e:headed
 ## 建議呼叫方式
 
 ```text
-使用 e2e-payment-test 執行花漾生活的綠界付款完整流程；
-先跑 npm run test:e2e，再準備公開 HTTPS 環境以錄製真實綠界測試交易與後台訂單結果。
+使用 e2e-payment-test Skill 執行真實綠界錄影流程；
+確認錄影環境已啟動後執行 npm run recording:flow，並保留付款成功頁與綠界後台訂單作為證據。
 ```

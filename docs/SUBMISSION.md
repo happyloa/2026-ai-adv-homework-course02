@@ -29,10 +29,15 @@
    ```powershell
    npm test
    npm run test:e2e
+   npm run recording:start
+   npm run recording:check
+   npm run recording:flow
+   npm run recording:stop
    ```
 
-4. 實際錄影步驟：`docs/e2e/recording-checklist.md`
-5. E2E 測試影片（請在上傳公開影片後填入）：`[待補上公開影片連結]`
+4. 真實綠界 staging 驗證：官方測試卡、3D OTP、ReturnURL callback、`paid` 訂單與付款完成頁。
+5. 實際錄影步驟：`docs/e2e/recording-checklist.md`
+6. E2E 測試影片（請在上傳公開影片後填入）：`[待補上公開影片連結]`
 
 ## 環境變數
 
@@ -50,5 +55,5 @@
 ## 尚需本人完成的外部提交
 
 - [ ] 填寫第二場回饋表單，並將成功畫面截圖附在作業繳交表單。
-- [ ] 按照 `docs/e2e/recording-checklist.md` 錄製真實綠界測試與後台訂單畫面。
+- [ ] 按照 `docs/e2e/recording-checklist.md` 錄製真實綠界測試與後台訂單畫面（後台 CAPTCHA 需本人輸入）。
 - [ ] 上傳公開影片並把連結填回本文件。
