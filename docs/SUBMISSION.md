@@ -37,7 +37,7 @@
 
 4. 真實綠界 staging 驗證：官方測試卡、3D OTP、ReturnURL callback、`paid` 訂單與付款完成頁。
 5. 實際錄影步驟：`docs/e2e/recording-checklist.md`
-6. E2E 測試影片（請在上傳公開影片後填入）：`[待補上公開影片連結]`
+6. E2E 測試影片：[YouTube｜第二場作業挑戰二 E2E 測試 Skill 與自動化測試錄影](https://youtu.be/_cfjs2AgADc)
 
 ## 環境變數
 
